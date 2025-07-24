@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>AKMails</title>
+    
+    <link rel="manifest" href="manifest.json">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AKMails">
+    <link rel="apple-touch-icon" href="icon-192.png"> <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            overflow: hidden;
+            overflow-x: hidden;
+            padding-bottom: 70px;
+        }
+
+        .container {
+            background: #1e1e1e;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 500px;
+            margin: 20px;
+            border: 1px solid #333;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+            background: linear-gradient(45deg, #4fc3f7, #81d4fa, #e0f2f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 8px rgba(79, 195, 247, 0.6), 0 0 15px rgba(129, 212, 250, 0.4);
+            letter-spacing: 1px;
+        }
+
+        .email-container {
+            background: #2a2a2a;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 15px 0;
+            border: 1px solid #404040;
+            display: none;
+        }
+
+        .email-display {
+            background: #1565c0;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            word-break: break-all;
+            position: relative;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        /* --- Button Styles --- */
+        .copy-btn,
+        .change-btn,
+        .qr-btn {
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            min-width: 80px;
+            flex-grow: 1;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .copy-btn {
+            background: #4caf50;
+        }
+
+        .copy-btn:hover {
+            background: #43a047;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .copy-btn:active {
+            background: #388e3c;
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .change-btn {
+            background: #ff9800;
+        }
+
+        .change-btn:hover {
+            background: #fb8c00;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .change-btn:active {
+            background: #f57c00;
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .qr-btn {
+            background: #9c27b0;
+        }
+
+        .qr-btn:hover {
+            background: #8e24aa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .qr-btn:active {
+            background: #7b1fa2;
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Close buttons (for QR popup and Inbox popup) */
+        .close-btn,
+        .close-popup-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            font-size: 28px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 5px;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .close-btn:hover,
+        .close-popup-btn:hover {
+            color: #fff;
+            transform: rotate(90deg);
+        }
+
+        .back-btn {
+            background: #4fc3f7;
+            color: #1a1a1a;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .back-btn:hover {
+            background: #66daff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .back-btn:active {
+            background: #29b6f6;
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .refresh-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .refresh-btn:hover {
+            background: #43a047;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .refresh-btn:active {
+            background: #388e3c;
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        /* --- End Button Styles --- */
+
+        .status {
+            text-align: center;
+            color: #999;
+            font-size: 13px;
+            margin-top: 15px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            font-size: 13px;
+            z-index: 1001;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4fc3f7;
+            border-radius: 3px;
+        }
+
+
+        .qr-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .qr-popup-content {
+            background: #1e1e1e;
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 300px;
+            width: 90%;
+            border: 1px solid #333;
+            position: relative;
+        }
+
+        .qr-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .qr-header h3 {
+            color: #4fc3f7;
+            margin: 0;
+            font-size: 18px;
+        }
+
+
+        .qr-code-container {
+            text-align: center;
+        }
+
+        .qr-code-container img {
+            width: 200px;
+            height: 200px;
+            border-radius: 10px;
+            border: 2px solid #404040;
+            margin-bottom: 15px;
+        }
+
+        .qr-code-container p {
+            color: #999;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #2a2a2a;
+            padding: 10px 0;
+            text-align: center;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.4);
+            z-index: 999;
+            border-top: 1px solid #404040;
+        }
+
+        .inbox-button {
+            background: linear-gradient(45deg, #4fc3f7, #81d4fa);
+            color: #1a1a1a;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 150, 255, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .inbox-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 150, 255, 0.4);
+        }
+
+        .inbox-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(0, 150, 255, 0.2);
+        }
+
+        .inbox-popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .inbox-popup-content {
+            background: #1e1e1e;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            width: 90%;
+            max-width: 600px;
+            height: 90%;
+            max-height: 80vh;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            animation: fadeInScale 0.3s ease-out;
+        }
+
+        .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #404040;
+        }
+
+        .popup-header h3 {
+            color: #4fc3f7;
+            margin: 0;
+            font-size: 20px;
+        }
+
+
+        .close-popup-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            font-size: 28px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 5px;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .close-popup-btn:hover {
+            color: #fff;
+            transform: rotate(90deg);
+        }
+
+        .email-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+
+        .email-item {
+            background: #2a2a2a;
+            border: 1px solid #404040;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .email-item:hover {
+            background: #333;
+            border-color: #4fc3f7;
+        }
+
+        .email-sender {
+            font-weight: bold;
+            color: #4fc3f7;
+            font-size: 13px;
+        }
+
+        .email-subject {
+            margin: 4px 0;
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .email-preview {
+            font-size: 12px;
+            color: #999;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+
+        .email-detail {
+            display: none;
+            flex-grow: 1;
+            overflow-y: auto;
+            background: #2a2a2a;
+            border: 1px solid #404040;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .back-btn {
+            background: #4fc3f7;
+            color: #1a1a1a;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .back-btn:hover {
+            background: #66daff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .back-btn:active {
+            background: #29b6f6;
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .refresh-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .refresh-btn:hover {
+            background: #43a047;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .refresh-btn:active {
+            background: #388e3c;
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .loading {
+            text-align: center;
+            color: #999;
+            padding: 15px;
+            font-size: 13px;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        #email-count-bottom,
+        #email-count-popup {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        /* Styles for the hamburger menu icon */
+        .menu-icon {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1002;
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        .menu-icon .bar {
+            width: 25px;
+            height: 3px;
+            background-color: #fff;
+            margin: 5px 0;
+            transition: 0.4s;
+        }
+
+        /* Styles for the overlay menu */
+        .overlay-menu {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 1001;
+            top: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.95);
+            overflow-x: hidden;
+            transition: 0.5s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overlay-menu .overlay-content {
+            position: relative;
+            top: -10%;
+            width: 100%;
+            text-align: center;
+            margin-top: 0;
+        }
+
+        .overlay-menu a {
+            padding: 18px 25px;
+            text-decoration: none;
+            font-size: 28px;
+            color: #e0e0e0;
+            display: block;
+            transition: 0.3s ease;
+            margin-bottom: 10px;
+            background: rgba(45, 45, 45, 0.4);
+            border-radius: 8px;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid rgba(64, 64, 64, 0.6);
+        }
+
+        .overlay-menu a:hover,
+        .overlay-menu a:focus {
+            color: #ffffff;
+            background: rgba(79, 195, 247, 0.2);
+            border-color: #4fc3f7;
+            transform: scale(1.05);
+        }
+
+        /* Animation for the hamburger icon when menu is open (optional) */
+        .change .bar:nth-child(1) {
+            transform: translateY(8px) rotate(-45deg);
+        }
+
+        .change .bar:nth-child(2) {
+            opacity: 0;
+        }
+
+        .change .bar:nth-child(3) {
+            transform: translateY(-8px) rotate(45deg);
+        }
+
+        /* New styles for Information Popup */
+        .info-popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .info-popup-content {
+            background: #1e1e1e;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            width: 90%;
+            max-width: 450px;
+            border: 1px solid #333;
+            position: relative;
+            animation: fadeInScale 0.3s ease-out;
+            text-align: center;
+        }
+
+        .info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #404040;
+        }
+
+        .info-header h3 {
+            color: #4fc3f7;
+            margin: 0;
+            font-size: 20px;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .info-details p {
+            font-size: 15px;
+            margin: 10px 0;
+            word-wrap: break-word;
+            line-height: 1.6;
+            display: flex;
+            align-items: baseline;
+            justify-content: flex-start;
+            padding-left: 40px;
+        }
+
+        .info-details strong {
+            color: #ccc;
+            margin-right: 6px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .info-details span {
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            text-align: left;
+            flex: 1;
+        }
+
+        .copy-password-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .copy-password-btn:hover {
+            background: #43a047;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .copy-password-btn:active {
+            background: #388e3c;
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .info-warning {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ffcc00;
+            border: 1px solid rgba(255, 0, 0, 0.5);
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-top: 20px;
+            font-size: 12px;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        /* Styles for Login Form within Popup */
+        .login-form-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* Space between input fields and button */
+            padding: 20px 0;
+        }
+
+        .login-input {
+            width: calc(100% - 20px); /* Adjust for padding */
+            padding: 12px 10px;
+            margin: 0 auto; /* Center inputs */
+            border: 1px solid #444;
+            border-radius: 8px;
+            background-color: #2a2a2a;
+            color: #fff;
+            font-size: 16px;
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+        }
+
+        .login-input::placeholder {
+            color: #888;
+        }
+
+        .login-input:focus {
+            border-color: #4fc3f7;
+            outline: none;
+            box-shadow: 0 0 8px rgba(79, 195, 247, 0.3);
+        }
+
+        .login-form-container .action-button {
+            width: calc(100% - 20px); /* Match input width */
+            margin: 0 auto; /* Center button */
+            padding: 12px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+        }
+
+        .error-message {
+            color: #ff6347; /* Tomato red */
+            font-size: 14px;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="menu-icon" id="menu-icon">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+    </div>
+    <div class="overlay-menu" id="overlay-menu">
+        <div class="overlay-content">
+            <a href="#" onclick="showInformationPopup(); return false;">Information</a>
+            <a href="#" id="open-login-popup-link">Login</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>AKMails</h1>
+        </div>
+
+        <div id="email-container" class="email-container">
+            <div class="email-display" id="email-address">Creating account...</div>
+            <div style="display: flex; justify-content: space-between; gap: 8px;">
+                <button class="copy-btn" onclick="copyEmail()">
+                    <span style="font-size: 16px;">📋</span>
+                    <span>Copy</span>
+                </button>
+                <button class="change-btn" onclick="changeEmail()">
+                    <span style="font-size: 16px;">🔄</span>
+                    <span>Change</span>
+                </button>
+                <button class="qr-btn" onclick="showQRPopup()">
+                    <span style="font-size: 16px;">📱</span>
+                    <span>QR Code</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="qr-popup" id="qr-popup" onclick="closeQRPopup()">
+            <div class="qr-popup-content" onclick="event.stopPropagation()">
+                <div class="qr-header">
+                    <h3>QR Code</h3>
+                    <button class="close-btn" onclick="closeQRPopup()">×</button>
+                </div>
+                <div class="qr-code-container">
+                    <img id="qr-code" alt="QR Code" />
+                    <p>Scan to copy email address</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-popup-overlay" id="info-popup-overlay">
+            <div class="info-popup-content" onclick="event.stopPropagation()">
+                <div class="info-header">
+                    <h3>Account Information</h3>
+                    <button class="close-popup-btn" onclick="closeInformationPopup()">×</button>
+                </div>
+                <div class="info-details">
+                    <p><strong>Email:</strong> <span id="info-email-address"></span></p>
+                    <p><strong>Password:</strong> <span id="info-password"></span></p>
+                </div>
+                <button class="copy-password-btn" onclick="copyPassword()">Copy Password</button>
+                <div class="info-warning">
+                    <p><strong>Important:</strong> These are temporary, auto-generated credentials for this disposable
+                        email service. Do NOT use them for important personal accounts or services.</p>
+                </div>
+            </div>
+        </div>
+        <div class="bottom-bar">
+            <button class="inbox-button" onclick="toggleInboxPopup()">
+                📧 Inbox (<span id="email-count-bottom">0</span>)
+            </button>
+        </div>
+
+        <div class="inbox-popup-overlay" id="inbox-popup-overlay">
+            <div class="inbox-popup-content">
+                <div class="popup-header">
+                    <h3 id="popup-title">📧 Inbox (<span id="email-count-popup">0</span>)</h3>
+                    <button class="close-popup-btn" onclick="closeInboxPopup()">×</button>
+                </div>
+                <div class="email-list" id="email-list">
+                    <div class="loading" id="loading-inbox">Checking for emails...</div>
+                    <div style="text-align: center; margin-bottom: 10px;">
+                        <button class="refresh-btn" onclick="checkEmails()">🔄 Refresh</button>
+                    </div>
+                </div>
+                <div class="email-detail" id="email-detail">
+                    <button class="back-btn" onclick="showInbox()">← Back</button>
+                    <div id="email-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="login-popup-overlay" class="info-popup-overlay">
+            <div class="info-popup-content">
+                <div class="info-header">
+                    <h3>Login to Account</h3>
+                    <span class="close-button" onclick="closeLoginPopup()">&times;</span>
+                </div>
+                <div class="login-form-container">
+                    <input type="email" id="login-email" placeholder="Email Address" class="login-input">
+                    <input type="password" id="login-password" placeholder="Password" class="login-input">
+                    <button id="login-submit-button" class="action-button green-button">Log In</button>
+                    <p id="login-error-message" class="error-message" style="display: none;"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="status" id="status">Initializing...</div>
+    </div>
+
+    <div class="toast" id="toast">Email copied!</div>
+
+    <script>
+        let emailAccount = null;
+        let authToken = null;
+        let emails = [];
+        let processedMessageIds = new Set();
+        let monitoringInterval = null;
+
+        // localStorage helper functions
+        function saveLoginState(account, token) {
+            localStorage.setItem('akmails_emailAccount', JSON.stringify(account));
+            localStorage.setItem('akmails_authToken', token);
+            console.log('Login state saved to localStorage.');
+        }
+
+        function loadLoginState() {
+            const accountString = localStorage.getItem('akmails_emailAccount');
+            const token = localStorage.getItem('akmails_authToken');
+            if (accountString && token) {
+                try {
+                    const account = JSON.parse(accountString);
+                    console.log('Login state loaded from localStorage.');
+                    return { account, token };
+                } catch (e) {
+                    console.error('Error parsing stored account data:', e);
+                    clearLoginState(); // Clear corrupted data
+                    return null;
+                }
+            }
+            return null;
+        }
+
+        function clearLoginState() {
+            localStorage.removeItem('akmails_emailAccount');
+            localStorage.removeItem('akmails_authToken');
+            console.log('Login state cleared from localStorage.');
+        }
+
+
+        class EmailGenerator {
+            constructor() {
+                this.baseURL = 'https://api.mail.tm';
+                this.firstNames = ['alex', 'sam', 'jordan', 'taylor', 'casey', 'morgan', 'riley', 'jamie', 'avery', 'charlie', 'drew', 'blake', 'sage', 'rowan', 'quinn'];
+                this.lastNames = ['smith', 'johnson', 'brown', 'davis', 'miller', 'wilson', 'moore', 'taylor', 'anderson', 'thomas', 'jackson', 'white', 'harris', 'martin', 'garcia'];
+                this.words = ['blue', 'fast', 'cool', 'smart', 'lucky', 'happy', 'bright', 'strong', 'swift', 'bold', 'clever', 'quiet', 'brave', 'kind', 'wise'];
+            }
+
+            generateRealisticUsername() {
+                const patterns = [
+                    () => `${this.getRandomItem(this.firstNames)}.${this.getRandomItem(this.lastNames)}`,
+                    () => `${this.getRandomItem(this.firstNames)}${this.getRandomNumber(10, 99)}`,
+                    () => `${this.getRandomItem(this.firstNames)}${this.getRandomItem(this.words)}`,
+                    () => `${this.getRandomItem(this.words)}${this.getRandomItem(this.firstNames)}`,
+                    () => `${this.getRandomItem(this.firstNames)}_${this.getRandomItem(this.lastNames)}`,
+                    () => `${this.getRandomItem(this.firstNames)}${this.getRandomNumber(1995, 2005)}`,
+                    () => `${this.getRandomItem(this.lastNames)}${this.getRandomNumber(1, 999)}`,
+                    () => `${this.getRandomItem(this.words)}${this.getRandomNumber(10, 999)}`
+                ];
+
+                const selectedPattern = this.getRandomItem(patterns);
+                return selectedPattern();
+            }
+
+            getRandomItem(array) {
+                return array[Math.floor(Math.random() * array.length)];
+            }
+
+            getRandomNumber(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+
+            generateRandomPassword(length = 12) {
+                const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let password = '';
+                for (let i = 0; i < length; i++) {
+                    const randomIndex = Math.floor(Math.random() * charset.length);
+                    password += charset[randomIndex];
+                }
+                return password;
+            }
+
+            async sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            async getDomains() {
+                try {
+                    const response = await fetch(`${this.baseURL}/domains`);
+                    const data = await response.json();
+
+                    let domains;
+                    if (data['hydra:member']) {
+                        domains = data['hydra:member'];
+                    } else if (Array.isArray(data)) {
+                        domains = data;
+                    } else {
+                        throw new Error('Invalid response format');
+                    }
+
+                    return domains.filter(domain => domain.isActive);
+                } catch (error) {
+                    throw new Error(`Failed to fetch domains: ${error.message}`);
+                }
+            }
+
+            async createAccount(retries = 3) {
+                for (let attempt = 1; attempt <= retries; attempt++) {
+                    try {
+                        const domains = await this.getDomains();
+                        if (domains.length === 0) {
+                            throw new Error('No active domains available');
+                        }
+
+                        const selectedDomain = domains[Math.floor(Math.random() * domains.length)];
+                        const username = this.generateRealisticUsername();
+                        const password = this.generateRandomPassword();
+                        const emailAddress = `${username}@${selectedDomain.domain}`;
+
+                        const response = await fetch(`${this.baseURL}/accounts`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                address: emailAddress,
+                                password: password
+                            })
+                        });
+
+                        if (response.ok) {
+                            const account = await response.json();
+                            return {
+                                ...account,
+                                password: password,
+                                domain: selectedDomain.domain
+                            };
+                        } else if (response.status === 429) {
+                            await this.sleep(attempt * 5000);
+                            continue;
+                        } else if (response.status === 422) {
+                            await this.sleep(1000);
+                            continue;
+                        } else {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+
+                    } catch (error) {
+                        if (attempt === retries) {
+                            throw new Error(`Failed to create account after multiple attempts: ${error.message}`);
+                        }
+                        await this.sleep(2000);
+                    }
+                }
+            }
+
+            async getToken(email, password) {
+                const response = await fetch(`${this.baseURL}/token`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ address: email, password })
+                });
+                const data = await response.json();
+                return data.token;
+            }
+
+            async login(email, password) {
+                try {
+                    const response = await fetch(`${this.baseURL}/token`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ address: email, password })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        return {
+                            token: data.token,
+                            address: email,
+                            password: password // Return password to store in emailAccount
+                        };
+                    } else {
+                        const errorData = await response.json();
+                        if (response.status === 401) {
+                            // Unauthorized: wrong credentials
+                            throw new Error('Incorrect email or password.');
+                        } else if (response.status === 404 && errorData.detail === 'Account not found') {
+                            // Not found: account doesn't exist
+                            throw new Error('Account does not exist.');
+                        } else {
+                            throw new Error(errorData.detail || `Login failed: HTTP ${response.status}`);
+                        }
+                    }
+                } catch (error) {
+                    throw new Error(`Login failed: ${error.message}`);
+                }
+            }
+
+
+            async getMessages(token) {
+                const response = await fetch(`${this.baseURL}/messages`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (!response.ok) {
+                    // If token is invalid/expired, this will throw
+                    if (response.status === 401) {
+                        throw new Error('Authentication failed. Please log in again.');
+                    }
+                    throw new Error(`Failed to fetch messages: HTTP ${response.status}`);
+                }
+                const data = await response.json();
+                return data['hydra:member'] || [];
+            }
+
+            async getMessageContent(token, id) {
+                const response = await fetch(`${this.baseURL}/messages/${id}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch message content: HTTP ${response.status}`);
+                }
+                return response.json();
+            }
+        }
+
+        const emailService = new EmailGenerator();
+
+        function copyEmail() {
+            const email = emailAccount ? emailAccount.email : document.getElementById('email-address').textContent;
+            navigator.clipboard.writeText(email).then(() => {
+                showToast("Email copied!");
+            });
+        }
+
+        function copyPassword() {
+            const password = document.getElementById('info-password').textContent;
+            navigator.clipboard.writeText(password).then(() => {
+                showToast("Password copied!");
+            });
+        }
+
+        async function changeEmail() {
+            try {
+                // Clear existing monitoring
+                if (monitoringInterval) {
+                    clearInterval(monitoringInterval);
+                    monitoringInterval = null;
+                }
+
+                // Reset variables
+                authToken = null;
+                emails = [];
+                processedMessageIds.clear();
+
+                // Clear stored state for new account
+                clearLoginState();
+
+                // Update UI
+                document.getElementById('status').textContent = 'Creating new account...';
+                document.getElementById('email-address').textContent = 'Creating account...';
+                updateEmailCounts();
+
+                // Create new account
+                const account = await emailService.createAccount();
+
+                document.getElementById('email-address').textContent = account.address;
+                document.getElementById('status').textContent = 'Authenticating...';
+
+                // Store the full account object, including password
+                emailAccount = { email: account.address, password: account.password };
+
+
+                authToken = await emailService.getToken(account.address, account.password);
+                document.getElementById('status').textContent = 'Monitoring active';
+
+                startMonitoring();
+                await checkEmails();
+                updateEmailCounts();
+                saveLoginState(emailAccount, authToken); // Save the newly created account
+
+            } catch (error) {
+                document.getElementById('status').textContent = `Error: ${error.message}`;
+                console.error('Change email error:', error);
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        function showQRPopup() {
+            const email = emailAccount ? emailAccount.email : document.getElementById('email-address').textContent;
+            const qrImg = document.getElementById('qr-code');
+            const popup = document.getElementById('qr-popup');
+
+            // Generate QR code
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(email)}&bgcolor=2a2a2a&color=4fc3f7`;
+
+            // Show popup
+            popup.style.display = 'flex';
+        }
+
+        function closeQRPopup() {
+            document.getElementById('qr-popup').style.display = 'none';
+        }
+
+        // Functions for Information Popup
+        function showInformationPopup() {
+            closeNav(); // Close the overlay menu
+            const infoPopupOverlay = document.getElementById('info-popup-overlay');
+            const infoEmailAddressSpan = document.getElementById('info-email-address');
+            const infoPasswordSpan = document.getElementById('info-password');
+
+            if (emailAccount) {
+                infoEmailAddressSpan.textContent = emailAccount.email;
+                infoPasswordSpan.textContent = emailAccount.password;
+            } else {
+                infoEmailAddressSpan.textContent = 'N/A';
+                infoPasswordSpan.textContent = 'N/A';
+            }
+
+            infoPopupOverlay.style.display = 'flex';
+        }
+
+        function closeInformationPopup() {
+            document.getElementById('info-popup-overlay').style.display = 'none';
+        }
+        // END Functions for Information Popup
+
+        // Add these functions for the login popup
+        function openLoginPopup() {
+            closeNav(); // Close the overlay menu if open
+            document.getElementById('login-popup-overlay').style.display = 'flex';
+            document.getElementById('login-error-message').style.display = 'none'; // Clear previous errors
+            document.getElementById('login-email').value = ''; // Clear inputs
+            document.getElementById('login-password').value = '';
+        }
+
+        function closeLoginPopup() {
+            document.getElementById('login-popup-overlay').style.display = 'none';
+        }
+
+        // Event listener for the "Login" link in the menu
+        document.getElementById('open-login-popup-link').addEventListener('click', (event) => {
+            event.preventDefault(); // Prevent default link behavior
+            openLoginPopup();
+        });
+
+        // Event listener for the "Log In" button inside the popup
+        document.getElementById('login-submit-button').addEventListener('click', async () => {
+            const loginEmailInput = document.getElementById('login-email');
+            const loginPasswordInput = document.getElementById('login-password');
+            const errorMessageDisplay = document.getElementById('login-error-message');
+
+            const email = loginEmailInput.value.trim();
+            const password = loginPasswordInput.value.trim();
+
+            errorMessageDisplay.style.display = 'none'; // Hide previous errors
+            errorMessageDisplay.textContent = ''; // Clear text
+
+            if (!email || !password) {
+                errorMessageDisplay.textContent = 'Please enter both email and password.';
+                errorMessageDisplay.style.display = 'block';
+                return;
+            }
+
+            try {
+                errorMessageDisplay.textContent = 'Logging in...';
+                errorMessageDisplay.style.display = 'block';
+
+                const loginResult = await emailService.login(email, password);
+
+                // Clear existing monitoring for new login
+                if (monitoringInterval) {
+                    clearInterval(monitoringInterval);
+                    monitoringInterval = null;
+                }
+                emails = []; // Clear old emails
+                processedMessageIds.clear();
+
+                emailAccount = { email: loginResult.address, password: loginResult.password };
+                authToken = loginResult.token;
+
+                document.getElementById('email-address').textContent = emailAccount.email;
+                document.getElementById('email-container').style.display = 'block'; // Show email display
+                document.getElementById('status').textContent = 'Logged in! Monitoring active.';
+
+                startMonitoring();
+                await checkEmails();
+                updateEmailCounts();
+
+                closeLoginPopup(); // Close the popup on successful login
+                showToast("Logged in successfully!");
+                saveLoginState(emailAccount, authToken); // Save the logged-in account
+
+                // Update information popup content if it's opened later
+                document.getElementById('info-email-address').textContent = emailAccount.email;
+                document.getElementById('info-password').textContent = emailAccount.password;
+
+            } catch (error) {
+                errorMessageDisplay.textContent = error.message;
+                errorMessageDisplay.style.display = 'block';
+                console.error('Login error:', error);
+            }
+        });
+
+
+        function startMonitoring() {
+            if (monitoringInterval) clearInterval(monitoringInterval);
+
+            monitoringInterval = setInterval(async () => {
+                if (!authToken) return;
+
+                try {
+                    const currentMessages = await emailService.getMessages(authToken);
+
+                    const newMessages = currentMessages.filter(
+                        msg => !processedMessageIds.has(msg.id)
+                    );
+
+                    if (newMessages.length > 0) {
+                        for (const message of newMessages) {
+                            const fullMessage = await emailService.getMessageContent(authToken, message.id);
+                            emails.unshift(fullMessage);
+                            processedMessageIds.add(message.id);
+                        }
+                        updateEmailDisplay();
+                        updateEmailCounts();
+                    }
+                } catch (error) {
+                    console.error('Monitoring error:', error);
+                    // If authentication fails during monitoring, clear session
+                    if (error.message.includes('Authentication failed')) {
+                        document.getElementById('status').textContent = 'Session expired. Please log in or create new account.';
+                        clearLoginState();
+                        clearInterval(monitoringInterval);
+                        monitoringInterval = null;
+                        emailAccount = null;
+                        authToken = null;
+                        emails = [];
+                        processedMessageIds.clear();
+                        updateEmailCounts();
+                        document.getElementById('email-container').style.display = 'none'; // Hide email display
+                    }
+                }
+            }, 10000);
+        }
+
+        // Function to update the display of emails in the list
+        function updateEmailDisplay() {
+            const emailListDiv = document.getElementById('email-list');
+            const loadingDiv = document.getElementById('loading-inbox');
+            if (emails.length === 0) {
+                loadingDiv.textContent = 'No emails yet.';
+                loadingDiv.style.display = 'block';
+            } else {
+                loadingDiv.style.display = 'none';
+                emailListDiv.innerHTML = emails.map((email, index) => `
+                    <div class="email-item" onclick="showEmail(${index})">
+                        <div class="email-sender">From: ${email.from.address}</div>
+                        <div class="email-subject">Subject: ${email.subject || 'No Subject'}</div>
+                        <div class="email-preview">${(email.text || email.html || '').substring(0, 80)}...</div>
+                    </div>
+                `).join('');
+            }
+            updateEmailCounts();
+        }
+
+        // Function to show a specific email in detail
+        function showEmail(index) {
+            const email = emails[index];
+            const content = `
+                <h3 style="color: #4fc3f7;">${email.subject || 'No Subject'}</h3>
+                <p><strong style="color: #ccc;">From:</strong> ${email.from.address}</p>
+                <p><strong style="color: #ccc;">Date:</strong> ${new Date(email.createdAt).toLocaleString()}</p>
+                <hr style="border-color: #404040;">
+                <div style="color: #ddd; word-wrap: break-word;">${email.html || email.text || 'No content'}</div>
+            `;
+
+            document.getElementById('email-content').innerHTML = content;
+            document.getElementById('email-list').style.display = 'none';
+            document.getElementById('email-detail').style.display = 'block';
+        }
+
+        // Function to switch back to the email list view
+        function showInbox() {
+            document.getElementById('email-list').style.display = 'block';
+            document.getElementById('email-detail').style.display = 'none';
+            updateEmailDisplay(); // Refresh list just in case
+        }
+
+        // Function to manually check for new emails (called by refresh button)
+        async function checkEmails() {
+            if (!authToken) return;
+            const loadingDiv = document.getElementById('loading-inbox');
+            loadingDiv.textContent = 'Checking for emails...';
+            loadingDiv.style.display = 'block';
+
+            try {
+                const currentMessages = await emailService.getMessages(authToken);
+                const newMessages = currentMessages.filter(
+                    msg => !processedMessageIds.has(msg.id)
+                );
+
+                if (newMessages.length > 0) {
+                    for (const message of newMessages) {
+                        const fullMessage = await emailService.getMessageContent(authToken, message.id);
+                        emails.unshift(fullMessage);
+                        processedMessageIds.add(message.id);
+                    }
+                }
+                updateEmailDisplay(); // Update UI with new emails
+                if (emails.length === 0) {
+                    loadingDiv.textContent = 'No emails yet.';
+                } else {
+                    loadingDiv.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error checking emails:', error);
+                loadingDiv.textContent = 'Error loading emails.';
+                // If authentication fails during checkEmails, clear session
+                if (error.message.includes('Authentication failed')) {
+                    document.getElementById('status').textContent = 'Session expired. Please log in or create new account.';
+                    clearLoginState();
+                    clearInterval(monitoringInterval);
+                    monitoringInterval = null;
+                    emailAccount = null;
+                    authToken = null;
+                    emails = [];
+                    processedMessageIds.clear();
+                    updateEmailCounts();
+                    document.getElementById('email-container').style.display = 'none'; // Hide email display
+                }
+            }
+        }
+
+        // Function to update email count on the button and popup header
+        function updateEmailCounts() {
+            const count = emails.length;
+            document.getElementById('email-count-bottom').textContent = count;
+            document.getElementById('email-count-popup').textContent = count;
+            document.getElementById('popup-title').innerHTML = `📧 Inbox (<span id="email-count-popup">${count}</span>)`;
+        }
+
+        // Function to toggle the inbox popup visibility
+        function toggleInboxPopup() {
+            const popupOverlay = document.getElementById('inbox-popup-overlay');
+            if (popupOverlay.style.display === 'flex') {
+                closeInboxPopup();
+            } else {
+                openInboxPopup();
+            }
+        }
+
+        // Function to open the inbox popup
+        async function openInboxPopup() {
+            document.getElementById('inbox-popup-overlay').style.display = 'flex';
+            document.getElementById('email-list').style.display = 'block';
+            document.getElementById('email-detail').style.display = 'none';
+            await checkEmails();
+            updateEmailCounts();
+        }
+
+        // Function to close the inbox popup
+        function closeInboxPopup() {
+            document.getElementById('inbox-popup-overlay').style.display = 'none';
+        }
+
+        // Add this new section for menu functionality
+        function openNav() {
+            document.getElementById("overlay-menu").style.width = "100%";
+            document.getElementById("menu-icon").classList.add("change"); // Add class for animation
+            // Hide any other popups when opening the nav, if they are open
+            document.getElementById('qr-popup').style.display = 'none';
+            document.getElementById('inbox-popup-overlay').style.display = 'none';
+            document.getElementById('info-popup-overlay').style.display = 'none';
+            document.getElementById('login-popup-overlay').style.display = 'none'; // New: close login popup
+        }
+
+        function closeNav() {
+            document.getElementById("overlay-menu").style.width = "0%";
+            document.getElementById("menu-icon").classList.remove("change"); // Remove class to reset animation
+        }
+
+        // Event listener to toggle the menu when the hamburger icon is clicked
+        document.getElementById("menu-icon").addEventListener("click", function () {
+            const overlayMenu = document.getElementById("overlay-menu");
+            if (overlayMenu.style.width === "100%") {
+                closeNav();
+            } else {
+                openNav();
+            }
+        });
+
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            document.getElementById('status').textContent = 'Initializing...';
+            const storedState = loadLoginState();
+
+            if (storedState) {
+                // Attempt to use stored credentials
+                emailAccount = storedState.account;
+                authToken = storedState.token;
+
+                document.getElementById('email-address').textContent = emailAccount.email;
+                document.getElementById('email-container').style.display = 'block';
+                document.getElementById('status').textContent = 'Attempting to resume session...';
+
+                try {
+                    // Validate token by fetching messages or re-authenticating if needed
+                    // A simple checkEmails call will implicitly validate the token
+                    await checkEmails(); // This will throw an error if authToken is bad
+                    updateEmailCounts();
+
+                    document.getElementById('status').textContent = 'Session resumed! Monitoring active.';
+                    startMonitoring(); // Start monitoring only after successful check
+
+                    // Pre-fill info popup with loaded account
+                    document.getElementById('info-email-address').textContent = emailAccount.email;
+                    document.getElementById('info-password').textContent = emailAccount.password;
+
+                } catch (error) {
+                    // Token might be expired or invalid, or account deleted
+                    console.warn('Failed to resume session with stored credentials:', error);
+                    document.getElementById('status').textContent = 'Session expired or invalid. Creating new account...';
+                    clearLoginState(); // Clear invalid state
+                    await createAndActivateNewAccount(); // Fallback to creating new account
+                }
+            } else {
+                // No stored credentials, create a new account
+                document.getElementById('status').textContent = 'No session found. Creating new account...';
+                await createAndActivateNewAccount();
+            }
+        });
+
+        // Helper function to encapsulate new account creation and activation logic
+        async function createAndActivateNewAccount() {
+            try {
+                const account = await emailService.createAccount();
+
+                if (!account || !account.address || !account.password) {
+                    throw new Error("Failed to create account: Invalid account details received.");
+                }
+
+                emailAccount = { email: account.address, password: account.password };
+
+                document.getElementById('email-address').textContent = emailAccount.email;
+                document.getElementById('email-container').style.display = 'block';
+                document.getElementById('status').textContent = 'Authenticating new account...';
+
+                authToken = await emailService.getToken(account.address, account.password);
+                document.getElementById('status').textContent = 'New account active. Monitoring...';
+
+                startMonitoring();
+                await checkEmails();
+                updateEmailCounts();
+                saveLoginState(emailAccount, authToken); // Save the newly created account
+
+                // Pre-fill info popup with newly created account
+                document.getElementById('info-email-address').textContent = emailAccount.email;
+                document.getElementById('info-password').textContent = emailAccount.password;
+
+            } catch (error) {
+                document.getElementById('status').textContent = `Error creating account: ${error.message}`;
+                console.error('Account creation error:', error);
+            }
+        }
+    </script>
+</body>
+
+</html>
