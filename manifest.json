@@ -2,7 +2,7 @@
   "name": "AKMails",
   "short_name": "AKMails",
   "description": "Your temporary email service",
-  "start_url": "./AKMails.html",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#1a1a1a",
   "theme_color": "#4fc3f7",
