@@ -1312,11 +1312,18 @@
                     );
 
                     if (newMessages.length > 0) {
-                        for (const message of newMessages) {
+                        // Fetch all new message contents in parallel
+                        const fetchPromises = newMessages.map(async (message) => {
                             const fullMessage = await emailService.getMessageContent(authToken, message.id);
-                            emails.unshift(fullMessage);
                             processedMessageIds.add(message.id);
-                        }
+                            return fullMessage;
+                        });
+
+                        const fetchedFullMessages = await Promise.all(fetchPromises);
+
+                        // Add fetched messages to the beginning of the emails array
+                        emails.unshift(...fetchedFullMessages);
+
                         updateEmailDisplay();
                         updateEmailCounts();
                     }
@@ -1333,10 +1340,10 @@
                         emails = [];
                         processedMessageIds.clear();
                         updateEmailCounts();
-                        document.getElementById('email-container').style.display = 'none'; // Hide email display
+                        document.getElementById('email-container').style.display = 'none';
                     }
                 }
-            }, 10000);
+            }, 5000);
         }
 
         // Function to update the display of emails in the list
